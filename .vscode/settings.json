@@ -1,0 +1,15 @@
+{
+    "files.associations": {
+        "redis.h": "c",
+        "dict.h": "c",
+        "stddef.h": "c",
+        "stdint.h": "c",
+        "string.h": "c",
+        "zmalloc.h": "c",
+        "tmp.h": "c",
+        "stdio.h": "c",
+        "sds.h": "c",
+        "limits.h": "c",
+        "stdarg.h": "c"
+    }
+}
