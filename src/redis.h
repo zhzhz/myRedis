@@ -6,6 +6,15 @@
 #include "sds.h"     /* Dynamic safe strings */
 #include "zmalloc.h"
 #include "unistd.h"
+#include "ae.h"
+#include "anet.h"
+#include <netinet/in.h>
+
+/* Anti-warning macro... */
+#define REDIS_NOTUSED(V) ((void) V)
+
+#define REDIS_SERVERPORT        6379    /* TCP port */
+
 
 #define redisPanic(_e) _redisPanic(#_e,__FILE__,__LINE__),_exit(1)
 
@@ -45,6 +54,16 @@
 #define REDIS_ENCODING_INTSET 6  /* Encoded as intset */
 #define REDIS_ENCODING_SKIPLIST 7  /* Encoded as skiplist */
 #define REDIS_ENCODING_EMBSTR 8  /* Embedded sds string encoding */
+
+
+#define REDIS_IP_STR_LEN INET6_ADDRSTRLEN
+
+#define REDIS_BINDADDR_MAX 16
+
+#define REDIS_MIN_RESERVED_FDS 32
+#define REDIS_EVENTLOOP_FDSET_INCR (REDIS_MIN_RESERVED_FDS+96)
+
+#define REDIS_MAX_CLIENTS 10000
 
 
 typedef struct redisDb {
@@ -88,6 +107,25 @@ struct redisServer {
 
     // 日志可见性
     int verbosity;                  /* Loglevel in redis.conf */
+
+    // 事件状态
+    aeEventLoop *el;
+
+    // 网络错误
+    char neterr[ANET_ERR_LEN];   /* Error buffer for anet.c */
+
+    // TCP 监听端口
+    int port;                   /* TCP listening port */
+
+    int tcp_backlog;            /* TCP listen() backlog */
+
+    // 描述符
+    int ipfd[REDIS_BINDADDR_MAX]; /* TCP socket file descriptors */
+    // 描述符数量
+    int ipfd_count;             /* Used slots in ipfd[] */
+
+    /* Limits */
+    int maxclients;
 };
 
 void setGenericCommand(redisClient *c, robj *key, robj *val);
@@ -142,5 +180,14 @@ void dictSdsDestructor(void *privdata, void *val);
 
 void decrRefCount(robj *o);
 void freeStringObject(robj *o);
+
+void readQueryFromClient(aeEventLoop *el, int fd, void *privdata, int mask);
+
+void acceptTcpHandler(aeEventLoop *el, int fd, void *privdata, int mask);
+
+int listenToPort(int port, int *fds, int *count);
+
+aeEventLoop *aeCreateEventLoop(int setsize);
+int aeProcessEvents(aeEventLoop *eventLoop, int flags);
 
 #endif

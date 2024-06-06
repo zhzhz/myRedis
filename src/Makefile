@@ -1,5 +1,5 @@
 REDIS_SERVER_NAME=redis-server
-REDIS_SERVER_OBJ=server.o db.o dict.o networking.o sds.o t_string.o zmalloc.o tmp.o object.o debug.o
+REDIS_SERVER_OBJ=server.o db.o dict.o networking.o sds.o t_string.o zmalloc.o tmp.o object.o debug.o ae.o anet.o
 
 %.o: %.c
 	$(CC) -MMD -g -o $@ -c $<
