@@ -268,6 +268,7 @@ proc start_server {options {code undefined}} {
 
     # If we are running against an external server, we just push the
     # host/port pair in the stack the first time
+    set ::external 1
     if {$::external} {
         if {[llength $::servers] == 0} {
             set srv {}
@@ -275,7 +276,7 @@ proc start_server {options {code undefined}} {
             dict set srv "port" $::port
             set client [redis $::host $::port 0 $::tls]
             dict set srv "client" $client
-            $client select 9
+            # $client select 0
 
             set config {}
             dict set config "port" $::port
@@ -284,7 +285,7 @@ proc start_server {options {code undefined}} {
             # append the server to the stack
             lappend ::servers $srv
         }
-        r flushall
+        # r flushall
         if {[catch {set retval [uplevel 1 $code]} error]} {
             if {$::durable} {
                 set msg [string range $error 10 end]

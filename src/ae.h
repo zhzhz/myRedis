@@ -120,4 +120,6 @@ aeEventLoop *aeCreateEventLoop(int setsize);
 
 void aeMain(aeEventLoop *eventLoop);
 
+void aeDeleteFileEvent(aeEventLoop *eventLoop, int fd, int mask);
+
 #endif

@@ -10,4 +10,6 @@ void *zcalloc(size_t size);
 
 void zfree(void *ptr);
 
+void *zrealloc(void *ptr, size_t size);
+
 #endif /* __ZMALLOC_H */

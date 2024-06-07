@@ -4,6 +4,8 @@
 #include "zmalloc.h"
 #include <limits.h>
 #include "redis.h"
+#include <strings.h>
+#include <ctype.h>
 
 static int _dictInit(dict *ht, dictType *type, void *privDataPtr);
 static void _dictReset(dictht *ht);
@@ -95,6 +97,30 @@ static void _dictReset(dictht *ht)
     ht->sizemask = 0;
     ht->used = 0;
 }
+
+unsigned int dictSdsCaseHash(const void *key) {
+    return dictGenCaseHashFunction((unsigned char*)key, sdslen((char*)key));
+}
+
+/* And a case insensitive hash function (based on djb hash) */
+unsigned int dictGenCaseHashFunction(const unsigned char *buf, int len) {
+    unsigned int hash = (unsigned int)dict_hash_function_seed;
+
+    while (len--)
+        hash = ((hash << 5) + hash) + (tolower(*buf++)); /* hash * 33 + c */
+    return hash;
+}
+
+/* A case insensitive version used for the command lookup table and other
+ * places where case insensitive non binary-safe comparison is needed. */
+int dictSdsKeyCaseCompare(void *privdata, const void *key1,
+        const void *key2)
+{
+    DICT_NOTUSED(privdata);
+
+    return strcasecmp(key1, key2) == 0;
+}
+
 
 unsigned int dictSdsHash(const void *key) {
     return dictGenHashFunction((unsigned char*)key, sdslen((char*)key));

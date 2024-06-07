@@ -147,6 +147,9 @@ int dictReplace(dict *d, void *key, void *val);
 
 int dictExpand(dict *d, unsigned long size);
 
-
+unsigned int dictSdsCaseHash(const void *key);
+unsigned int dictGenCaseHashFunction(const unsigned char *buf, int len);
+int dictSdsKeyCaseCompare(void *privdata, const void *key1,
+        const void *key2);
 
 #endif /* __DICT_H */

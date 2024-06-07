@@ -7,11 +7,11 @@ void setKey(redisDb *db, robj *key, robj *val) {
     } else {
         dbOverwrite(db,key,val);
     }
+
+    incrRefCount(val);
 }
 
 void dbAdd(redisDb *db, robj *key, robj *val) {
-    printf("dbAdd()\n");
-
     // 复制键名
     sds copy = sdsdup(key->ptr);
 

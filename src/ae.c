@@ -118,3 +118,23 @@ void aeMain(aeEventLoop *eventLoop) {
         aeProcessEvents(eventLoop, AE_ALL_EVENTS);
     }
 }
+
+/*
+ * 将 fd 从 mask 指定的监听队列中删除
+ */
+void aeDeleteFileEvent(aeEventLoop *eventLoop, int fd, int mask)
+{
+    if (fd >= eventLoop->setsize) return;
+
+    // 取出文件事件结构
+    aeFileEvent *fe = &eventLoop->events[fd];
+
+    // 未设置监听的事件类型，直接返回
+    if (fe->mask == AE_NONE) return;
+
+    // 计算新掩码
+    fe->mask = fe->mask & (~mask);
+
+    // 取消对给定 fd 的给定事件的监视
+    aeApiDelEvent(eventLoop, fd, mask);
+}
